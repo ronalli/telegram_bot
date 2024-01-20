@@ -1,37 +1,25 @@
-import { Bot, Keyboard, session } from 'grammy';
+import { Bot } from 'grammy';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import { User } from './models/index.js';
 import { connectDB, getCoin } from './utils/api.js';
 import { myCache } from './utils/cache.js';
+import { keyboard } from './utils/keyboard.js';
 
 dotenv.config();
 
 const bot = new Bot(process.env.TOKEN);
 
-const keyboard = new Keyboard()
-  .text('Логин')
-  .row()
-  .text('Добавить монету')
-  .text('Список')
-  .row()
-  .resized()
-  .persistent();
-
 connectDB()
   .then(() => console.log('connected'))
   .catch((err) => console.log(err));
 
-bot.use(session());
-
 bot.command('start', async (ctx) => {
-  ctx.reply('Welcome friend!');
-  await ctx.reply('Touch please', {
+  await ctx.reply('Welcome friend! Touch please', {
     reply_markup: keyboard,
   });
 });
 
-bot.command('help', (ctx) => ctx.reply('This bot shows crypto analytic'));
+bot.command('help', (ctx) => ctx.reply('This bot shows crypto_analytic'));
 bot.command('save', async (ctx) => {
   const userAccount = {
     name: ctx.msg.chat.first_name,
@@ -56,19 +44,19 @@ bot.command('save', async (ctx) => {
   }
 });
 
-bot.hears('list', async (ctx) => {
+bot.hears('List', async (ctx) => {
   const response = await getCoin();
   if (response.message)
-    return ctx.reply('Произошла ошибка, давайте попробуем позже');
+    return ctx.reply(`An error occurred, let's try again later`);
   if (myCache.get('coin')) {
-    return ctx.reply('Данные актуальные!');
+    return ctx.reply('The data is up to date!');
   }
   if (myCache.set('coin', response, 3600))
-    return ctx.reply('Данные получены успешно!');
+    return ctx.reply('Data received successfully');
 });
 
 bot.on('message', async (ctx) => {
-  if (ctx.message.text === 'Логин') {
+  if (ctx.message.text === 'Login') {
     const id = ctx.msg.chat.id.toString();
     try {
       const [user] = await User.find({ id: id });
@@ -78,9 +66,15 @@ bot.on('message', async (ctx) => {
       console.log(error);
     }
   }
-  if (ctx.message.text === 'Добавить монету') {
-    await ctx.reply(
-      'Введите через запятую: символьное обозначение монеты (например, ETC, BTC, ADA), стоимость монеты на момент покупки и количество монет'
+
+  // if (ctx.message.text === 'List') {
+  //   return ctx.api.sendMessage(ctx.msg.chat.id, 'The list is empty!');
+  // }
+
+  if (ctx.message.text === 'Add coin') {
+    await ctx.api.sendMessage(
+      ctx.msg.chat.id,
+      'Enter, separated by commas: the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase and the number of coins'
     );
   }
 });
