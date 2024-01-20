@@ -5,7 +5,7 @@ export const getCoin = async () => {
   try {
     const response = await axios.get(process.env.API_URL, {
       headers: {
-        'X-CMC_PRO_API_KEY': process.env.TOKEN_COINMARKET,
+        'X-CMC_PRO_API_KEY': process.env.API_KEY,
       },
     });
     return response.data;
@@ -14,7 +14,4 @@ export const getCoin = async () => {
   }
 };
 
-export const connectDB = () =>
-  mongoose.connect(
-    `mongodb+srv://${process.env.USER_MG}:${process.env.PASSWORD_MG}@cluster0.kokvpr9.mongodb.net/`
-  );
+export const connectDB = () => mongoose.connect(process.env.MONGOOSE_URL);

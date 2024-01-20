@@ -7,7 +7,7 @@ import { keyboard } from './utils/keyboard.js';
 
 dotenv.config();
 
-const bot = new Bot(process.env.TOKEN);
+const bot = new Bot(process.env.TOKEN_BOT);
 
 connectDB()
   .then(() => console.log('connected'))
