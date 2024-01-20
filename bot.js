@@ -1,13 +1,11 @@
 import { Bot, Keyboard, session } from 'grammy';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-// import NodeCache from 'node-cache';
-import axios from 'axios';
 import { User } from './models/index.js';
+import { connectDB, getCoin } from './utils/api.js';
+import { myCache } from './utils/cache.js';
 
 dotenv.config();
-
-
 
 const bot = new Bot(process.env.TOKEN);
 
@@ -20,10 +18,7 @@ const keyboard = new Keyboard()
   .resized()
   .persistent();
 
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.USER_MG}:${process.env.PASSWORD_MG}@cluster0.kokvpr9.mongodb.net/`
-  )
+connectDB()
   .then(() => console.log('connected'))
   .catch((err) => console.log(err));
 
@@ -62,17 +57,14 @@ bot.command('save', async (ctx) => {
 });
 
 bot.hears('list', async (ctx) => {
-  try {
-    const response = await axios.get(process.env.API_URL, {
-      headers: {
-        'X-CMC_PRO_API_KEY': process.env.TOKEN_COINMARKET,
-      },
-    });
-    if (myCache.set('coin', response.data, 3600))
-      bot.api.sendMessage(ctx.msg.chat.id, 'good');
-  } catch (error) {
-    console.log(error);
+  const response = await getCoin();
+  if (response.message)
+    return ctx.reply('Произошла ошибка, давайте попробуем позже');
+  if (myCache.get('coin')) {
+    return ctx.reply('Данные актуальные!');
   }
+  if (myCache.set('coin', response, 3600))
+    return ctx.reply('Данные получены успешно!');
 });
 
 bot.on('message', async (ctx) => {
@@ -80,7 +72,6 @@ bot.on('message', async (ctx) => {
     const id = ctx.msg.chat.id.toString();
     try {
       const [user] = await User.find({ id: id });
-      // console.log(user);
       if (user) ctx.reply('User find!');
       else ctx.reply('Ooops!!');
     } catch (error) {
@@ -92,10 +83,6 @@ bot.on('message', async (ctx) => {
       'Введите через запятую: символьное обозначение монеты (например, ETC, BTC, ADA), стоимость монеты на момент покупки и количество монет'
     );
   }
-});
-
-bot.on(':text', async (ctx) => {
-  console.log('fsdfsd');
 });
 
 bot.start();
