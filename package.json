@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@grammyjs/chat-members": "^1.0.12",
+    "@grammyjs/conversations": "^1.2.0",
     "axios": "^1.6.5",
     "dotenv": "^16.3.1",
     "grammy": "^1.20.3",

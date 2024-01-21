@@ -1,13 +1,23 @@
-import { Bot } from 'grammy';
+import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
 import { User } from './models/index.js';
 import { connectDB, getCoin } from './utils/api.js';
 import { myCache } from './utils/cache.js';
 import { keyboard } from './utils/keyboard.js';
+import { conversations, createConversation } from '@grammyjs/conversations';
+import { addCoin } from './utils/functionConversations.js';
 
 dotenv.config();
 
 const bot = new Bot(process.env.TOKEN_BOT);
+bot.use(
+  session({
+    initial: () => ({}),
+  })
+);
+
+bot.use(conversations());
+bot.use(createConversation(addCoin));
 
 connectDB()
   .then(() => console.log('connected'))
@@ -67,15 +77,12 @@ bot.on('message', async (ctx) => {
     }
   }
 
-  // if (ctx.message.text === 'List') {
-  //   return ctx.api.sendMessage(ctx.msg.chat.id, 'The list is empty!');
-  // }
-
   if (ctx.message.text === 'Add coin') {
     await ctx.api.sendMessage(
       ctx.msg.chat.id,
       'Enter, separated by commas: the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase and the number of coins'
     );
+    await ctx.conversation.enter('addCoin');
   }
 });
 
