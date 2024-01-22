@@ -1,4 +1,4 @@
-import { Bot, session } from 'grammy';
+import { Bot,session } from 'grammy';
 import dotenv from 'dotenv';
 import { User } from './models/index.js';
 import { connectDB, getCoin } from './utils/api.js';
@@ -10,9 +10,10 @@ import { addCoin } from './utils/functionConversations.js';
 dotenv.config();
 
 const bot = new Bot(process.env.TOKEN_BOT);
+
 bot.use(
   session({
-    initial: () => ({}),
+    initial: () => ({ auth: false }),
   })
 );
 
@@ -24,6 +25,7 @@ connectDB()
   .catch((err) => console.log(err));
 
 bot.command('start', async (ctx) => {
+  console.log(ctx.session);
   await ctx.reply('Welcome friend! Touch please', {
     reply_markup: keyboard,
   });
@@ -70,8 +72,10 @@ bot.on('message', async (ctx) => {
     const id = ctx.msg.chat.id.toString();
     try {
       const [user] = await User.find({ id: id });
-      if (user) ctx.reply('User find!');
-      else ctx.reply('Ooops!!');
+      if (user) {
+        ctx.reply('User find!');
+        ctx.session.auth = true;
+      } else ctx.reply('Ooops!!');
     } catch (error) {
       console.log(error);
     }
@@ -80,9 +84,10 @@ bot.on('message', async (ctx) => {
   if (ctx.message.text === 'Add coin') {
     await ctx.api.sendMessage(
       ctx.msg.chat.id,
-      'Enter, separated by commas: the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase and the number of coins'
+      'Enter the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase (USD) and the number of coins'
     );
     await ctx.conversation.enter('addCoin');
+    console.log('add', ctx.session);
   }
 });
 
