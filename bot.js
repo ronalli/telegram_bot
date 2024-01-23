@@ -1,4 +1,4 @@
-import { Bot,session } from 'grammy';
+import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
 import { User } from './models/index.js';
 import { connectDB, getCoin } from './utils/api.js';
@@ -6,6 +6,7 @@ import { myCache } from './utils/cache.js';
 import { keyboard } from './utils/keyboard.js';
 import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin } from './utils/functionConversations.js';
+import { findUser, registerUser } from './controllers/user.controllers.js';
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ const bot = new Bot(process.env.TOKEN_BOT);
 
 bot.use(
   session({
-    initial: () => ({ auth: false }),
+    initial: () => ({ auth: false, info: null }),
   })
 );
 
@@ -33,26 +34,12 @@ bot.command('start', async (ctx) => {
 
 bot.command('help', (ctx) => ctx.reply('This bot shows crypto_analytic'));
 bot.command('save', async (ctx) => {
-  const userAccount = {
-    name: ctx.msg.chat.first_name,
-    id: ctx.msg.chat.id,
-    crypto: [
-      {
-        date: Date.now(),
-        name: 'ETC',
-        priceStart: '500',
-        rate: '300',
-        gain: '1000',
-      },
-    ],
-  };
-  const account = new User(userAccount);
-
-  try {
-    await account.save();
-    console.log('saved');
-  } catch (error) {
-    console.log(error);
+  const { first_name: name, id } = ctx.msg.chat;
+  const response = await registerUser(name, id);
+  if (response.success) {
+    ctx.reply(`${response.message}`);
+  } else {
+    ctx.response('Ooops!');
   }
 });
 
@@ -70,14 +57,13 @@ bot.hears('List', async (ctx) => {
 bot.on('message', async (ctx) => {
   if (ctx.message.text === 'Login') {
     const id = ctx.msg.chat.id.toString();
-    try {
-      const [user] = await User.find({ id: id });
-      if (user) {
-        ctx.reply('User find!');
-        ctx.session.auth = true;
-      } else ctx.reply('Ooops!!');
-    } catch (error) {
-      console.log(error);
+    const response = await findUser(id);
+    if (response.success) {
+      ctx.session.auth = true;
+      ctx.session.info = id;
+      ctx.reply(`${response.message}`);
+    } else {
+      ctx.reply('User not found!');
     }
   }
 
@@ -87,7 +73,6 @@ bot.on('message', async (ctx) => {
       'Enter the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase (USD) and the number of coins'
     );
     await ctx.conversation.enter('addCoin');
-    console.log('add', ctx.session);
   }
 });
 
