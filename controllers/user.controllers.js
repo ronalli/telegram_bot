@@ -4,7 +4,7 @@ export const findUser = async (id) => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
-      return { message: 'Account found', success: true };
+      return { message: 'Account found', success: true, data: response };
     } else {
       return { message: 'Account not found', success: false };
     }
@@ -39,7 +39,6 @@ export const updateUserInfo = async (id, coin) => {
       { id },
       { $push: { crypto: coin } }
     );
-    console.log(response);
     return { message: 'Success add', success: true };
   } catch (error) {
     return { error, success: false };

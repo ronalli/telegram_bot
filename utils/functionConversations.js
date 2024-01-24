@@ -9,9 +9,9 @@ export async function addCoin(conversation, ctx) {
   const {
     msg: { text: name },
   } = await conversation.wait();
-  await ctx.reply('Сoin value');
+  await ctx.reply('Сoin price');
   const {
-    msg: { text: value },
+    msg: { text: price },
   } = await conversation.wait();
   await ctx.reply('Number coins');
   const {
@@ -20,7 +20,7 @@ export async function addCoin(conversation, ctx) {
 
   const coin = {
     name,
-    value,
+    price,
     number,
     date: new Date(),
   };

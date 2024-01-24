@@ -6,6 +6,7 @@ import { keyboard } from './utils/keyboard.js';
 import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
+import db from './db.json' assert { type: 'json' };
 
 dotenv.config();
 
@@ -43,15 +44,33 @@ bot.command('save', async (ctx) => {
 });
 
 bot.hears('List', async (ctx) => {
-  const response = await getCoin();
-  if (response.message)
-    return ctx.reply(`An error occurred, let's try again later`);
-  if (myCache.get('coin')) {
-    return ctx.reply('The data is up to date!');
-  }
-  if (myCache.set('coin', response, 3600))
-    return ctx.reply('Data received successfully');
+  const response = db.data;
+  const { id } = ctx.msg.chat;
+  const { data } = await findUser(id);
+  // console.log(data.crypto);
+  data.crypto.forEach((el) => {
+    response.includes();
+  });
+  return ctx.reply('Data received successfully');
 });
+
+// bot.hears('List', async (ctx) => {
+//   const response = await getCoin();
+//   if (response.message)
+//     return ctx.reply(`An error occurred, let's try again later`);
+//   if (myCache.get('coin')) {
+//     return ctx.reply('The data is up to date!');
+//   }
+//   if (myCache.set('coin', response, 3600)) {
+//     const { id } = ctx.msg.chat;
+//     const { data } = await findUser(id);
+//     console.log(data.crypto);
+//     data.crypto.forEach((el) => {
+//       console.log(myCache.get('coin'));
+//     });
+//     return ctx.reply('Data received successfully');
+//   }
+// });
 
 bot.on('message', async (ctx) => {
   if (ctx.message.text === 'Login') {
