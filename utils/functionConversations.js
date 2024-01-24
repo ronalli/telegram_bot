@@ -1,3 +1,5 @@
+import { updateUserInfo } from '../controllers/user.controllers.js';
+
 export async function addCoin(conversation, ctx) {
   if (!ctx.session.auth) {
     await ctx.reply("You don't auth, bye!");
@@ -15,6 +17,17 @@ export async function addCoin(conversation, ctx) {
   const {
     msg: { text: number },
   } = await conversation.wait();
-  await ctx.reply('Сoin information added successfully');
+
+  const coin = {
+    name,
+    value,
+    number,
+    date: new Date().toLocaleDateString(),
+  };
+  const response = await conversation.external(() =>
+    updateUserInfo(ctx.session.info, coin)
+  );
+
+  await ctx.reply(`${response.message}`);
   return;
 }

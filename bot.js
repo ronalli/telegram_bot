@@ -63,7 +63,7 @@ bot.on('message', async (ctx) => {
       ctx.session.info = id;
       ctx.reply(`${response.message}`);
     } else {
-      ctx.reply('User not found!');
+      ctx.reply(`${response.message}`);
     }
   }
 
