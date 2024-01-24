@@ -34,6 +34,14 @@ export const registerUser = async (name, id) => {
 };
 
 export const updateUserInfo = async (id, coin) => {
-  console.log(id, coin);
-  return { message: 'Success add' };
+  try {
+    const response = await User.findOneAndUpdate(
+      { id },
+      { $push: { crypto: coin } }
+    );
+    console.log(response);
+    return { message: 'Success add', success: true };
+  } catch (error) {
+    return { error, success: false };
+  }
 };

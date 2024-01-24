@@ -7,9 +7,8 @@ const UserSchema = new mongoose.Schema({
     {
       date: Date,
       name: String,
-      priceStart: String,
-      rate: String,
-      gain: String,
+      value: String,
+      number: String,
     },
   ],
 });

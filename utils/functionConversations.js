@@ -22,12 +22,12 @@ export async function addCoin(conversation, ctx) {
     name,
     value,
     number,
-    date: new Date().toLocaleDateString(),
+    date: new Date(),
   };
   const response = await conversation.external(() =>
     updateUserInfo(ctx.session.info, coin)
   );
-
+  if (!response.success) return ctx.reply('Ooops! Try later');
   await ctx.reply(`${response.message}`);
   return;
 }

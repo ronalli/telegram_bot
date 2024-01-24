@@ -1,6 +1,5 @@
 import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
-import { User } from './models/index.js';
 import { connectDB, getCoin } from './utils/api.js';
 import { myCache } from './utils/cache.js';
 import { keyboard } from './utils/keyboard.js';
