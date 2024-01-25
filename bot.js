@@ -7,6 +7,7 @@ import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
 import db from './db.json' assert { type: 'json' };
+import { formatData } from './utils/helpFunctions.js';
 
 dotenv.config();
 
@@ -44,12 +45,15 @@ bot.command('save', async (ctx) => {
 });
 
 bot.hears('List', async (ctx) => {
-  const response = db.data;
+  const response = await formatData(db.data);
   const { id } = ctx.msg.chat;
   const { data } = await findUser(id);
-  // console.log(data.crypto);
   data.crypto.forEach((el) => {
-    response.includes();
+    if (response[el.name]) {
+      const { price } = response[el.name].quote['USD'];
+      let gain = ((Number(price) - Number(el.price)) / Number(el.price)) * 100;
+      ctx.reply(`gain ${el.name}: ${Math.floor(gain * 1000) / 1000}%`);
+    }
   });
   return ctx.reply('Data received successfully');
 });
