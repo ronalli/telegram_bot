@@ -19,7 +19,7 @@ export async function addCoin(conversation, ctx) {
   } = await conversation.wait();
 
   const coin = {
-    name,
+    name: name.toUpperCase(),
     price,
     number,
     date: new Date(),

@@ -46,15 +46,29 @@ bot.command('save', async (ctx) => {
 
 bot.hears('List', async (ctx) => {
   const response = await formatData(db.data);
+  const stack = {};
   const { id } = ctx.msg.chat;
   const { data } = await findUser(id);
   data.crypto.forEach((el) => {
     if (response[el.name]) {
-      const { price } = response[el.name].quote['USD'];
-      let gain = ((Number(price) - Number(el.price)) / Number(el.price)) * 100;
-      ctx.reply(`gain ${el.name}: ${Math.floor(gain * 1000) / 1000}%`);
+      if (stack.hasOwnProperty(el.name)) {
+        stack[el.name] = (Number(stack[el.name]) + Number(el.price)) / 2;
+      } else {
+        stack[el.name] = Number(el.price);
+      }
+    } else {
+      stack[el.name] = `This coin not found`;
     }
   });
+  for (let [key, value] of Object.entries(stack)) {
+    const price = response[key]?.quote['USD'].price;
+    if (price) {
+      let gain = ((Number(price) - Number(value)) / Number(value)) * 100;
+      await ctx.reply(`gain ${key}: ${Math.floor(gain * 1000) / 1000}%`);
+    } else {
+      await ctx.reply(`This coin ${key} not found`);
+    }
+  }
   return ctx.reply('Data received successfully');
 });
 
