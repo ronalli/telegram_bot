@@ -45,31 +45,52 @@ bot.command('save', async (ctx) => {
 });
 
 bot.hears('List', async (ctx) => {
-  const response = await formatData(db.data);
-  const stack = {};
-  const { id } = ctx.msg.chat;
-  const { data } = await findUser(id);
-  data.crypto.forEach((el) => {
-    if (response[el.name]) {
-      if (stack.hasOwnProperty(el.name)) {
-        stack[el.name] = (Number(stack[el.name]) + Number(el.price)) / 2;
+  if (ctx.session.auth) {
+    const response = await formatData(db.data);
+    const stack = {};
+    const { id } = ctx.msg.chat;
+    const { data } = await findUser(id);
+    data.crypto.forEach((el) => {
+      if (response[el.name]) {
+        if (stack.hasOwnProperty(el.name)) {
+          stack[el.name] = {
+            price:
+              Number(stack[el.name].price) +
+              Number(el.price) * Number(el.number),
+            number: stack[el.name].number + Number(el.number),
+          };
+        } else {
+          stack[el.name] = {
+            price: Number(el.price) * Number(el.number),
+            number: Number(el.number),
+          };
+        }
       } else {
-        stack[el.name] = Number(el.price);
+        stack[el.name] = `This coin not found`;
       }
-    } else {
-      stack[el.name] = `This coin not found`;
+    });
+
+    for (let [key, value] of Object.entries(stack)) {
+      const price = response[key]?.quote['USD'].price;
+      if (price) {
+        let averagePrice = value.price / value.number;
+        let profitPercentage =
+          ((Number(price) - averagePrice) / averagePrice) * 100;
+        let profitPrice = (Number(price) - averagePrice) * value.number;
+
+        await ctx.reply(
+          `gain ${key}: ${
+            Math.floor(profitPercentage * 1000) / 1000
+          }%, profit: ${Math.floor(profitPrice * 1000) / 1000}$`
+        );
+      } else {
+        await ctx.reply(`This coin ${key} not found`);
+      }
     }
-  });
-  for (let [key, value] of Object.entries(stack)) {
-    const price = response[key]?.quote['USD'].price;
-    if (price) {
-      let gain = ((Number(price) - Number(value)) / Number(value)) * 100;
-      await ctx.reply(`gain ${key}: ${Math.floor(gain * 1000) / 1000}%`);
-    } else {
-      await ctx.reply(`This coin ${key} not found`);
-    }
+    return ctx.reply('Data received successfully');
+  } else {
+    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
   }
-  return ctx.reply('Data received successfully');
 });
 
 // bot.hears('List', async (ctx) => {
@@ -90,26 +111,24 @@ bot.hears('List', async (ctx) => {
 //   }
 // });
 
-bot.on('message', async (ctx) => {
-  if (ctx.message.text === 'Login') {
-    const id = ctx.msg.chat.id.toString();
-    const response = await findUser(id);
-    if (response.success) {
-      ctx.session.auth = true;
-      ctx.session.info = id;
-      ctx.reply(`${response.message}`);
-    } else {
-      ctx.reply(`${response.message}`);
-    }
+bot.hears('Login', async (ctx) => {
+  const id = ctx.msg.chat.id.toString();
+  const response = await findUser(id);
+  if (response.success) {
+    ctx.session.auth = true;
+    ctx.session.info = id;
+    ctx.reply(`${response.message}`);
+  } else {
+    ctx.reply(`${response.message}`);
   }
+});
 
-  if (ctx.message.text === 'Add coin') {
-    await ctx.api.sendMessage(
-      ctx.msg.chat.id,
-      'Enter the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase (USD) and the number of coins'
-    );
-    await ctx.conversation.enter('addCoin');
-  }
+bot.hears('Add coin', async (ctx) => {
+  await ctx.api.sendMessage(
+    ctx.msg.chat.id,
+    'Enter the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase (USD) and the number of coins'
+  );
+  await ctx.conversation.enter('addCoin');
 });
 
 bot.start();
