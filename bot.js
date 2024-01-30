@@ -7,7 +7,7 @@ import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
 import db from './db.json' assert { type: 'json' };
-import { formatData } from './utils/helpFunctions.js';
+import { dataFusion, formatData, printInfo } from './utils/helpFunctions.js';
 
 dotenv.config();
 
@@ -47,47 +47,11 @@ bot.command('save', async (ctx) => {
 bot.hears('List', async (ctx) => {
   if (ctx.session.auth) {
     const response = await formatData(db.data);
-    const stack = {};
     const { id } = ctx.msg.chat;
     const { data } = await findUser(id);
-    data.crypto.forEach((el) => {
-      if (response[el.name]) {
-        if (stack.hasOwnProperty(el.name)) {
-          stack[el.name] = {
-            price:
-              Number(stack[el.name].price) +
-              Number(el.price) * Number(el.number),
-            number: stack[el.name].number + Number(el.number),
-          };
-        } else {
-          stack[el.name] = {
-            price: Number(el.price) * Number(el.number),
-            number: Number(el.number),
-          };
-        }
-      } else {
-        stack[el.name] = `This coin not found`;
-      }
-    });
-
-    for (let [key, value] of Object.entries(stack)) {
-      const price = response[key]?.quote['USD'].price;
-      if (price) {
-        let averagePrice = value.price / value.number;
-        let profitPercentage =
-          ((Number(price) - averagePrice) / averagePrice) * 100;
-        let profitPrice = (Number(price) - averagePrice) * value.number;
-
-        await ctx.reply(
-          `gain ${key}: ${
-            Math.floor(profitPercentage * 1000) / 1000
-          }%, profit: ${Math.floor(profitPrice * 1000) / 1000}$`
-        );
-      } else {
-        await ctx.reply(`This coin ${key} not found`);
-      }
-    }
-    return ctx.reply('Data received successfully');
+    const stack = await dataFusion(response, data);
+    const respo = await printInfo(stack, response, ctx);
+    return ctx.reply(`${respo}`);
   } else {
     return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
   }
