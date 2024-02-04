@@ -44,3 +44,17 @@ export const updateUserInfo = async (id, coin) => {
     return { error, success: false };
   }
 };
+
+export const findOneCoin = async (id, coin) => {
+  try {
+    const response = await findUser(id);
+    if (response.success) {
+      let coins = response.data.crypto.filter((el) => el.name === coin);
+      return { data: coins, success: true, message: 'Successfully received' };
+    } else {
+      return { success: false, message: 'Ooops! Try later' };
+    }
+  } catch (error) {
+    return { error, success: false };
+  }
+};

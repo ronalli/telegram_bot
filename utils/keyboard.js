@@ -1,10 +1,14 @@
-import { Keyboard } from 'grammy';
+import { InlineKeyboard, Keyboard } from 'grammy';
 
 export const keyboard = new Keyboard()
-  .text('Login')
+  .text('🔐 Login')
   .row()
-  .text('Add coin')
-  .text('List')
+  .text('🆗 Add coin')
+  .text('📋 List')
   .row()
+  .text('👁 All transaction')
+  .text('🔍 Search coin')
   .resized()
   .persistent();
+
+export const inlineKeyboard = new InlineKeyboard().text('Click', 'ff');

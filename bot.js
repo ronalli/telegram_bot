@@ -2,9 +2,9 @@ import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
 import { connectDB, getCoin } from './utils/api.js';
 import { myCache } from './utils/cache.js';
-import { keyboard } from './utils/keyboard.js';
+import { inlineKeyboard, keyboard } from './utils/keyboard.js';
 import { conversations, createConversation } from '@grammyjs/conversations';
-import { addCoin } from './utils/functionConversations.js';
+import { addCoin, searchCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
 import db from './db.json' assert { type: 'json' };
 import { dataFusion, formatData, printInfo } from './utils/helpFunctions.js';
@@ -21,19 +21,21 @@ bot.use(
 
 bot.use(conversations());
 bot.use(createConversation(addCoin));
+bot.use(createConversation(searchCoin));
 
 connectDB()
   .then(() => console.log('connected'))
   .catch((err) => console.log(err));
 
 bot.command('start', async (ctx) => {
-  console.log(ctx.session);
   await ctx.reply('Welcome friend! Touch please', {
     reply_markup: keyboard,
   });
 });
 
-bot.command('help', (ctx) => ctx.reply('This bot shows crypto_analytic'));
+bot.command('help', (ctx) =>
+  ctx.reply('This bot shows crypto_analytic', { reply_markup: inlineKeyboard })
+);
 bot.command('save', async (ctx) => {
   const { first_name: name, id } = ctx.msg.chat;
   const response = await registerUser(name, id);
@@ -44,7 +46,9 @@ bot.command('save', async (ctx) => {
   }
 });
 
-bot.hears('List', async (ctx) => {
+bot.callbackQuery('ff', (ctx) => ctx.reply('good'));
+
+bot.hears('📋 List', async (ctx) => {
   if (ctx.session.auth) {
     const response = await formatData(db.data);
     const { id } = ctx.msg.chat;
@@ -75,7 +79,7 @@ bot.hears('List', async (ctx) => {
 //   }
 // });
 
-bot.hears('Login', async (ctx) => {
+bot.hears('🔐 Login', async (ctx) => {
   const id = ctx.msg.chat.id.toString();
   const response = await findUser(id);
   if (response.success) {
@@ -87,7 +91,35 @@ bot.hears('Login', async (ctx) => {
   }
 });
 
-bot.hears('Add coin', async (ctx) => {
+bot.hears('👁 All transaction', async (ctx) => {
+  if (ctx.session.auth) {
+    const id = ctx.session.info;
+    const {
+      data: { crypto },
+    } = await findUser(id);
+    crypto.forEach(async (el) => {
+      await ctx.reply(
+        `${el.name}, date: ${el.date.toLocaleDateString()}, price: ${
+          el.price
+        }$, number: ${el.number}, sum: ${
+          Math.floor(el.price * el.number * 1000) / 1000
+        }$`
+      );
+    });
+  } else {
+    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
+  }
+});
+
+bot.hears('🔍 Search coin', async (ctx) => {
+  if (ctx.session.auth) {
+    await ctx.conversation.enter('searchCoin');
+  } else {
+    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
+  }
+});
+
+bot.hears('🆗 Add coin', async (ctx) => {
   await ctx.api.sendMessage(
     ctx.msg.chat.id,
     'Enter the symbolic designation of the coin (for example, ETC, BTC, ADA), the value of the coin at the time of purchase (USD) and the number of coins'

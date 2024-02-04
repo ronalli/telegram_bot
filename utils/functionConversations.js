@@ -1,4 +1,8 @@
-import { updateUserInfo } from '../controllers/user.controllers.js';
+import {
+  findOneCoin,
+  updateUserInfo,
+} from '../controllers/user.controllers.js';
+import { keyboard } from './keyboard.js';
 
 export async function addCoin(conversation, ctx) {
   if (!ctx.session.auth) {
@@ -28,6 +32,30 @@ export async function addCoin(conversation, ctx) {
     updateUserInfo(ctx.session.info, coin)
   );
   if (!response.success) return ctx.reply('Ooops! Try later');
-  await ctx.reply(`${response.message}`);
+  await ctx.reply(`${response.message}`, { reply_markup: keyboard });
+  return;
+}
+
+export async function searchCoin(conversation, ctx) {
+  const id = ctx.session.info;
+  await ctx.reply(`Please, write name's coin`);
+  const {
+    msg: { text: name },
+  } = await conversation.wait();
+  const response = await conversation.external(() =>
+    findOneCoin(id, name.toUpperCase())
+  );
+  if (response.success) {
+    response.data.forEach(async (el) => {
+      await ctx.reply(
+        `${el.name}, date: ${el.date.toLocaleDateString()}, price: ${
+          el.price
+        }$, number: ${el.number}, sum: ${
+          Math.floor(el.price * el.number * 1000) / 1000
+        }$`
+      );
+    });
+  }
+  await ctx.reply(`${response.message}`, { reply_markup: keyboard }); //!!!! error
   return;
 }

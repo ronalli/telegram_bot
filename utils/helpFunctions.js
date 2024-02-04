@@ -36,13 +36,13 @@ export const printInfo = async (stack, response, ctx) => {
     if (price) {
       let averagePrice = value.price / value.number;
       let profitPercentage =
-        ((Number(price) - averagePrice) / averagePrice) * 100;
-      let profitPrice = (Number(price) - averagePrice) * value.number;
-
+        Math.floor(
+          ((Number(price) - averagePrice) / averagePrice) * 100 * 1000
+        ) / 1000;
+      let profitPrice =
+        Math.floor((Number(price) - averagePrice) * value.number * 1000) / 1000;
       await ctx.reply(
-        `gain ${key}: ${Math.floor(profitPercentage * 1000) / 1000}%, profit: ${
-          Math.floor(profitPrice * 1000) / 1000
-        }$`
+        `gain ${key}: ${profitPercentage}%, profit: ${profitPrice}$`
       );
     } else {
       await ctx.reply(`This coin ${key} not found`);
