@@ -1,6 +1,6 @@
 import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
-import { connectDB, getCoin } from './utils/api.js';
+import * as api from './utils/api.js';
 import { myCache } from './utils/cache.js';
 import { inlineKeyboard, keyboard } from './utils/keyboard.js';
 import { conversations, createConversation } from '@grammyjs/conversations';
@@ -28,7 +28,8 @@ bot.use(conversations());
 bot.use(createConversation(addCoin));
 bot.use(createConversation(searchCoin));
 
-connectDB()
+api
+  .connect()
   .then(() => console.log('connected'))
   .catch((err) => console.log(err));
 
@@ -55,7 +56,7 @@ bot.callbackQuery('ff', (ctx) => ctx.reply('good'));
 
 bot.hears('📋 List', async (ctx) => {
   if (ctx.session.auth) {
-    const response = await formatData(db.data);
+    const response = await formatMainData(db.data);
     const { id } = ctx.msg.chat;
     const { data } = await findUser(id);
     const stack = await dataFusion(response, data);

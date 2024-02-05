@@ -14,4 +14,4 @@ export const getCoin = async () => {
   }
 };
 
-export const connectDB = () => mongoose.connect(process.env.MONGOOSE_URL);
+export const connect = () => mongoose.connect(process.env.MONGOOSE_URL);
