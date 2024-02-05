@@ -1,4 +1,4 @@
-export const formatData = async (data) => {
+export const formatMainData = async (data) => {
   const obj = {};
   data.forEach((el) => {
     obj[el.symbol] = el;
@@ -49,4 +49,12 @@ export const printInfo = async (stack, response, ctx) => {
     }
   }
   return 'Data received successfully';
+};
+
+export const formatInfoCoin = (element) => {
+  return `${element.name}, date: ${element.date.toLocaleDateString()}, price: ${
+    element.price
+  }$, number: ${element.number}, sum: ${
+    Math.floor(element.price * element.number * 1000) / 1000
+  }$`;
 };

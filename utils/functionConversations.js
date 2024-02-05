@@ -2,6 +2,7 @@ import {
   findOneCoin,
   updateUserInfo,
 } from '../controllers/user.controllers.js';
+import { formatInfoCoin } from './helpFunctions.js';
 import { keyboard } from './keyboard.js';
 
 export async function addCoin(conversation, ctx) {
@@ -47,13 +48,7 @@ export async function searchCoin(conversation, ctx) {
   );
   if (response.success) {
     response.data.forEach(async (el) => {
-      await ctx.reply(
-        `${el.name}, date: ${el.date.toLocaleDateString()}, price: ${
-          el.price
-        }$, number: ${el.number}, sum: ${
-          Math.floor(el.price * el.number * 1000) / 1000
-        }$`
-      );
+      await ctx.reply(formatInfoCoin(el));
     });
   }
   await ctx.reply(`${response.message}`, { reply_markup: keyboard });

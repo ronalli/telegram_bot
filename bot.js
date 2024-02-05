@@ -7,7 +7,12 @@ import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin, searchCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
 import db from './db.json' assert { type: 'json' };
-import { dataFusion, formatData, printInfo } from './utils/helpFunctions.js';
+import {
+  dataFusion,
+  formatInfoCoin,
+  formatMainData,
+  printInfo,
+} from './utils/helpFunctions.js';
 
 dotenv.config();
 
@@ -98,13 +103,7 @@ bot.hears('👁 All transaction', async (ctx) => {
       data: { crypto },
     } = await findUser(id);
     crypto.forEach(async (el) => {
-      await ctx.reply(
-        `${el.name}, date: ${el.date.toLocaleDateString()}, price: ${
-          el.price
-        }$, number: ${el.number}, sum: ${
-          Math.floor(el.price * el.number * 1000) / 1000
-        }$`
-      );
+      await ctx.reply(formatInfoCoin(el));
     });
   } else {
     return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
