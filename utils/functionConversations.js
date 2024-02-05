@@ -56,6 +56,6 @@ export async function searchCoin(conversation, ctx) {
       );
     });
   }
-  await ctx.reply(`${response.message}`, { reply_markup: keyboard }); //!!!! error
+  await ctx.reply(`${response.message}`, { reply_markup: keyboard });
   return;
 }

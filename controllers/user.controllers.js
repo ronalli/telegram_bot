@@ -50,9 +50,9 @@ export const findOneCoin = async (id, coin) => {
     const response = await findUser(id);
     if (response.success) {
       let coins = response.data.crypto.filter((el) => el.name === coin);
-      return { data: coins, success: true, message: 'Successfully received' };
-    } else {
-      return { success: false, message: 'Ooops! Try later' };
+      return coins.length === 0
+        ? { success: false, message: 'There is no information about the coin' }
+        : { data: coins, success: true, message: 'Successfully received' };
     }
   } catch (error) {
     return { error, success: false };
