@@ -1,15 +1,17 @@
-export const formatMainData = async (data) => {
-  const obj = {};
-  data.forEach((el) => {
+// import { Response } from '../types/Coins';
+
+export const formatMainData = async (data: any) => {
+  const obj: any = {};
+  data.forEach((el: any) => {
     obj[el.symbol] = el;
   });
   return obj;
 };
 
-export const dataFusion = async (response, arrayCoin) => {
-  const stack = {};
+export const dataFusion = async (response: any, arrayCoin: any) => {
+  const stack: any = {};
   const { crypto: data } = arrayCoin;
-  data.forEach((el) => {
+  data.forEach((el: any) => {
     if (response[el.name]) {
       if (stack.hasOwnProperty(el.name)) {
         stack[el.name] = {
@@ -30,7 +32,14 @@ export const dataFusion = async (response, arrayCoin) => {
   return stack;
 };
 
-export const printInfo = async (stack, response, ctx) => {
+type Elem = {
+  price: number;
+  number: number;
+};
+
+type Stack = Elem[];
+
+export const printInfo = async (stack: Stack, response: any, ctx: any) => {
   for (let [key, value] of Object.entries(stack)) {
     const price = response[key]?.quote['USD'].price;
     if (price) {
@@ -51,7 +60,7 @@ export const printInfo = async (stack, response, ctx) => {
   return 'Data received successfully';
 };
 
-export const formatInfoCoin = (element) => {
+export const formatInfoCoin = (element: any) => {
   return `${element.name}, date: ${element.date.toLocaleDateString()}, price: ${
     element.price
   }$, number: ${element.number}, sum: ${

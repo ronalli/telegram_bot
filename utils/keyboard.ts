@@ -1,6 +1,6 @@
 import { InlineKeyboard, Keyboard } from 'grammy';
 
-export const keyboard = new Keyboard()
+const keyboard = new Keyboard()
   .text('🔐 Login')
   .row()
   .text('🆗 Add coin')
@@ -11,4 +11,6 @@ export const keyboard = new Keyboard()
   .resized()
   .persistent();
 
-export const inlineKeyboard = new InlineKeyboard().text('Click', 'ff');
+const inlineKeyboard = new InlineKeyboard().text('Click', 'ff');
+
+export default { keyboard, inlineKeyboard };

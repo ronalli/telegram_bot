@@ -3,9 +3,9 @@ import {
   updateUserInfo,
 } from '../controllers/user.controllers.js';
 import { formatInfoCoin } from './helpFunctions.js';
-import { keyboard } from './keyboard.js';
+import CustomKeyboard from './keyboard.js';
 
-export async function addCoin(conversation, ctx) {
+export async function addCoin(conversation: any, ctx: any) {
   if (!ctx.session.auth) {
     await ctx.reply("You don't auth, bye!");
     return;
@@ -33,11 +33,13 @@ export async function addCoin(conversation, ctx) {
     updateUserInfo(ctx.session.info, coin)
   );
   if (!response.success) return ctx.reply('Ooops! Try later');
-  await ctx.reply(`${response.message}`, { reply_markup: keyboard });
+  await ctx.reply(`${response.message}`, {
+    reply_markup: CustomKeyboard.keyboard,
+  });
   return;
 }
 
-export async function searchCoin(conversation, ctx) {
+export async function searchCoin(conversation: any, ctx: any) {
   const id = ctx.session.info;
   await ctx.reply(`Please, write name's coin`);
   const {
@@ -47,10 +49,12 @@ export async function searchCoin(conversation, ctx) {
     findOneCoin(id, name.toUpperCase())
   );
   if (response.success) {
-    response.data.forEach(async (el) => {
+    response.data.forEach(async (el: any) => {
       await ctx.reply(formatInfoCoin(el));
     });
   }
-  await ctx.reply(`${response.message}`, { reply_markup: keyboard });
+  await ctx.reply(`${response.message}`, {
+    reply_markup: CustomKeyboard.keyboard,
+  });
   return;
 }

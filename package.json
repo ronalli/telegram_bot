@@ -2,9 +2,10 @@
   "type": "module",
   "name": "telegram_bot",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
-    "start": "nodemon bot.js"
+    "build": "tsc",
+    "start": "nodemon dist/bot.js"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import mongoose from 'mongoose';
 
-export const getCoin = async () => {
+const getCoin = async () => {
   try {
     const response = await axios.get(process.env.API_URL, {
       headers: {
@@ -14,4 +14,6 @@ export const getCoin = async () => {
   }
 };
 
-export const connect = () => mongoose.connect(process.env.MONGOOSE_URL);
+const connect = () => mongoose.connect(process.env.MONGOOSE_URL);
+
+export default { getCoin, connect };

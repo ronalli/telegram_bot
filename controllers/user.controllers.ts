@@ -1,6 +1,6 @@
 import { User } from '../models/index.js';
 
-export const findUser = async (id) => {
+export const findUser: any = async (id: any) => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
@@ -13,7 +13,7 @@ export const findUser = async (id) => {
   }
 };
 
-export const registerUser = async (name, id) => {
+export const registerUser = async (name: any, id: any) => {
   try {
     const response = await findUser(id);
     if (!response.success) {
@@ -33,7 +33,7 @@ export const registerUser = async (name, id) => {
   }
 };
 
-export const updateUserInfo = async (id, coin) => {
+export const updateUserInfo = async (id: any, coin: any) => {
   try {
     const response = await User.findOneAndUpdate(
       { id },
@@ -45,11 +45,11 @@ export const updateUserInfo = async (id, coin) => {
   }
 };
 
-export const findOneCoin = async (id, coin) => {
+export const findOneCoin = async (id: any, coin: any) => {
   try {
-    const response = await findUser(id);
+    const response: any = await findUser(id);
     if (response.success) {
-      let coins = response.data.crypto.filter((el) => el.name === coin);
+      let coins = response.data.crypto.filter((el: any) => el.name === coin);
       return coins.length === 0
         ? { success: false, message: 'There is no information about the coin' }
         : { data: coins, success: true, message: 'Successfully received' };

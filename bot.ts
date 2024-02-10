@@ -1,12 +1,17 @@
-import { Bot, session } from 'grammy';
+import { Bot, session, Context, SessionFlavor, Keyboard } from 'grammy';
 import dotenv from 'dotenv';
-import * as api from './utils/api.js';
-import { myCache } from './utils/cache.js';
-import { inlineKeyboard, keyboard } from './utils/keyboard.js';
-import { conversations, createConversation } from '@grammyjs/conversations';
+import API from './utils/api.js';
+// import { myCache } from './utils/cache.js';
+import CustomKeyboard from './utils/keyboard.js';
+import {
+  type Conversation,
+  type ConversationFlavor,
+  conversations,
+  createConversation,
+} from '@grammyjs/conversations';
 import { addCoin, searchCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
-import db from './db.json' assert { type: 'json' };
+import db from './database/db.json' assert { type: 'json' };
 import {
   dataFusion,
   formatInfoCoin,
@@ -14,42 +19,58 @@ import {
   printInfo,
 } from './utils/helpFunctions.js';
 
+interface SessionData {
+  auth: boolean;
+  info: string;
+}
+
+export type MyContext = Context &
+  SessionFlavor<SessionData> &
+  ConversationFlavor;
+export type MyConversation = Conversation<MyContext>;
+
 dotenv.config();
 
-const bot = new Bot(process.env.TOKEN_BOT);
+const bot = new Bot<MyContext>(process.env.TOKEN_BOT);
 
-bot.use(
-  session({
-    initial: () => ({ auth: false, info: null }),
-  })
-);
+function initial(): SessionData {
+  return {
+    auth: false,
+    info: '',
+  };
+}
+
+bot.use(session({ initial }));
 
 bot.use(conversations());
 bot.use(createConversation(addCoin));
 bot.use(createConversation(searchCoin));
 
-api
-  .connect()
+API.connect()
   .then(() => console.log('connected'))
-  .catch((err) => console.log(err));
+  .catch((err: any) => console.log(err));
 
 bot.command('start', async (ctx) => {
   await ctx.reply('Welcome friend! Touch please', {
-    reply_markup: keyboard,
+    reply_markup: CustomKeyboard.keyboard,
   });
 });
 
 bot.command('help', (ctx) =>
-  ctx.reply('This bot shows crypto_analytic', { reply_markup: inlineKeyboard })
+  ctx.reply('This bot shows crypto_analytic', {
+    reply_markup: CustomKeyboard.inlineKeyboard,
+  })
 );
 bot.command('save', async (ctx) => {
-  const { first_name: name, id } = ctx.msg.chat;
-  const response = await registerUser(name, id);
-  if (response.success) {
-    ctx.reply(`${response.message}`);
-  } else {
-    ctx.response('Ooops!');
-  }
+  console.log(ctx.msg.chat);
+
+  // const { first_name, id } = ctx.msg.chat;
+  // const response = await registerUser(first_name, id);
+  // if (response.success) {
+  //   ctx.reply(`${response.message}`);
+  // } else {
+  //   ctx.reply('Ooops!');
+  // }
 });
 
 bot.callbackQuery('ff', (ctx) => ctx.reply('good'));
@@ -63,7 +84,9 @@ bot.hears('📋 List', async (ctx) => {
     const respo = await printInfo(stack, response, ctx);
     return ctx.reply(`${respo}`);
   } else {
-    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
+    return ctx.reply("You don't auth, bye!", {
+      reply_markup: CustomKeyboard.keyboard,
+    });
   }
 });
 
@@ -103,11 +126,13 @@ bot.hears('👁 All transaction', async (ctx) => {
     const {
       data: { crypto },
     } = await findUser(id);
-    crypto.forEach(async (el) => {
+    crypto.forEach(async (el: any) => {
       await ctx.reply(formatInfoCoin(el));
     });
   } else {
-    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
+    return ctx.reply("You don't auth, bye!", {
+      reply_markup: CustomKeyboard.keyboard,
+    });
   }
 });
 
@@ -115,7 +140,9 @@ bot.hears('🔍 Search coin', async (ctx) => {
   if (ctx.session.auth) {
     await ctx.conversation.enter('searchCoin');
   } else {
-    return ctx.reply("You don't auth, bye!", { reply_markup: keyboard });
+    return ctx.reply("You don't auth, bye!", {
+      reply_markup: CustomKeyboard.keyboard,
+    });
   }
 });
 
