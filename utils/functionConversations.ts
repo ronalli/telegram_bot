@@ -1,3 +1,5 @@
+import { MyContext, MyConversation } from './../types/Context.js';
+
 import {
   findOneCoin,
   updateUserInfo,
@@ -5,28 +7,21 @@ import {
 import { formatInfoCoin } from './helpFunctions.js';
 import CustomKeyboard from './keyboard.js';
 
-export async function addCoin(conversation: any, ctx: any) {
+export async function addCoin(conversation: MyConversation, ctx: MyContext) {
   if (!ctx.session.auth) {
     await ctx.reply("You don't auth, bye!");
     return;
   }
   await ctx.reply("Name's coin: ");
-  const {
-    msg: { text: name },
-  } = await conversation.wait();
+  const name = await conversation.wait();
   await ctx.reply('Сoin price');
-  const {
-    msg: { text: price },
-  } = await conversation.wait();
+  const price = await conversation.wait();
   await ctx.reply('Number coins');
-  const {
-    msg: { text: number },
-  } = await conversation.wait();
-
+  const number = await conversation.wait();
   const coin = {
-    name: name.toUpperCase(),
-    price,
-    number,
+    name: name?.message?.text?.toUpperCase(),
+    price: price?.message?.text,
+    number: number?.message?.text,
     date: new Date(),
   };
   const response = await conversation.external(() =>
@@ -39,22 +34,23 @@ export async function addCoin(conversation: any, ctx: any) {
   return;
 }
 
-export async function searchCoin(conversation: any, ctx: any) {
+export async function searchCoin(conversation: MyConversation, ctx: MyContext) {
   const id = ctx.session.info;
   await ctx.reply(`Please, write name's coin`);
-  const {
-    msg: { text: name },
-  } = await conversation.wait();
-  const response = await conversation.external(() =>
-    findOneCoin(id, name.toUpperCase())
-  );
-  if (response.success) {
-    response.data.forEach(async (el: any) => {
-      await ctx.reply(formatInfoCoin(el));
+  const name = await conversation.wait();
+  const response = await conversation.external(() => {
+    if (name.message?.text) {
+      return findOneCoin(id, name.message?.text.toUpperCase());
+    }
+  });
+  if (response) {
+    response.success &&
+      response.data.forEach(async (el: any) => {
+        await ctx.reply(formatInfoCoin(el));
+      });
+    await ctx.reply(`${response.message}`, {
+      reply_markup: CustomKeyboard.keyboard,
     });
   }
-  await ctx.reply(`${response.message}`, {
-    reply_markup: CustomKeyboard.keyboard,
-  });
   return;
 }

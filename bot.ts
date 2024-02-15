@@ -1,14 +1,9 @@
-import { Bot, session, Context, SessionFlavor, Keyboard } from 'grammy';
+import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
 import API from './utils/api.js';
 // import { myCache } from './utils/cache.js';
 import CustomKeyboard from './utils/keyboard.js';
-import {
-  type Conversation,
-  type ConversationFlavor,
-  conversations,
-  createConversation,
-} from '@grammyjs/conversations';
+import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin, searchCoin } from './utils/functionConversations.js';
 import { findUser, registerUser } from './controllers/user.controllers.js';
 import db from './database/db.json' assert { type: 'json' };
@@ -18,16 +13,7 @@ import {
   formatMainData,
   printInfo,
 } from './utils/helpFunctions.js';
-
-interface SessionData {
-  auth: boolean;
-  info: string;
-}
-
-export type MyContext = Context &
-  SessionFlavor<SessionData> &
-  ConversationFlavor;
-export type MyConversation = Conversation<MyContext>;
+import { MyContext, SessionData } from './types/Context.js';
 
 dotenv.config();
 
