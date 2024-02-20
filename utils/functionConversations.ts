@@ -5,6 +5,7 @@ import {
 } from '../controllers/user.controllers.js';
 import { formatInfoCoin } from './helpFunctions.js';
 import CustomKeyboard from './keyboard.js';
+import { Coin } from '../models/User.js';
 
 export async function addCoin(conversation: MyConversation, ctx: MyContext) {
   if (!ctx.session.auth) {
@@ -17,19 +18,23 @@ export async function addCoin(conversation: MyConversation, ctx: MyContext) {
   const price = await conversation.wait();
   await ctx.reply('Number coins');
   const number = await conversation.wait();
-  const coin: any = {
-    name: name?.message?.text?.toUpperCase(),
-    price: price?.message?.text,
-    number: number?.message?.text,
-    date: new Date(),
-  };
-  const response = await conversation.external(() =>
-    updateUserInfo(ctx.session.info, coin)
-  );
-  if (!response.success) return ctx.reply('Ooops! Try later');
-  await ctx.reply(`${response.message}`, {
-    reply_markup: CustomKeyboard.keyboard,
-  });
+  if (name?.message?.text && price?.message?.text && number?.message?.text) {
+    const coin: Coin = {
+      name: name.message.text.toUpperCase(),
+      price: price.message.text,
+      number: number.message.text,
+      date: new Date(),
+    };
+    const response = await conversation.external(() =>
+      updateUserInfo(ctx.session.info, coin)
+    );
+
+    if (!response.success) return ctx.reply('Ooops! Try later');
+    await ctx.reply(`${response.message}`, {
+      reply_markup: CustomKeyboard.keyboard,
+    });
+    return;
+  }
   return;
 }
 
@@ -44,7 +49,7 @@ export async function searchCoin(conversation: MyConversation, ctx: MyContext) {
   });
   if (response) {
     response.success &&
-      response.data.forEach(async (el: any) => {
+      response?.data?.forEach(async (el: any) => {
         await ctx.reply(formatInfoCoin(el));
       });
     await ctx.reply(`${response.message}`, {

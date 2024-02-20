@@ -1,7 +1,8 @@
 import { PersonalCoin } from '../models/CryptoCoin.js';
+import { PersonalAccount } from '../models/User.js';
 import { User } from '../models/index.js';
 
-export const findUser: any = async (id: string) => {
+export const findUser = async (id: string) => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
@@ -18,7 +19,7 @@ export const registerUser = async (name: string, id: string) => {
   try {
     const response = await findUser(id);
     if (!response.success) {
-      const newUser = {
+      const newUser: PersonalAccount = {
         name,
         id,
         crypto: [],
@@ -46,11 +47,11 @@ export const updateUserInfo = async (id: string, coin: PersonalCoin) => {
   }
 };
 
-export const findOneCoin = async (id: any, coin: any) => {
+export const findOneCoin = async (id: string, coin: string) => {
   try {
-    const response: any = await findUser(id);
-    if (response.success) {
-      let coins = response.data.crypto.filter((el: any) => el.name === coin);
+    const response = await findUser(id);
+    if (response.success && response.data?.crypto) {
+      let coins = response.data.crypto.filter((el) => el.name === coin);
       return coins.length === 0
         ? { success: false, message: 'There is no information about the coin' }
         : { data: coins, success: true, message: 'Successfully received' };

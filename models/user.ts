@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 
-type Coin = {
+export type Coin = {
   date: Date;
   name: string;
   price: string;
@@ -12,7 +12,7 @@ type Coin = {
 export interface PersonalAccount {
   name: string;
   id: string;
-  crypto: [Coin];
+  crypto: [Coin] | [];
 }
 
 const UserSchema = new Schema<PersonalAccount>({
@@ -29,6 +29,6 @@ const UserSchema = new Schema<PersonalAccount>({
   ],
 });
 
-const User = model('User', UserSchema);
+const User = model<PersonalAccount>('User', UserSchema);
 
 export default User;

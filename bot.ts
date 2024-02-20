@@ -65,7 +65,7 @@ bot.hears('📋 List', async (ctx) => {
   if (ctx.session.auth) {
     const response = await formatMainData(db.data);
     const { id } = ctx.msg.chat;
-    const { data } = await findUser(id);
+    const { data } = await findUser(String(id));
     const stack = await dataFusion(response, data);
     const respo = await printInfo(stack, response, ctx);
     return ctx.reply(`${respo}`);
@@ -109,12 +109,12 @@ bot.hears('🔐 Login', async (ctx) => {
 bot.hears('👁 All transaction', async (ctx) => {
   if (ctx.session.auth) {
     const id = ctx.session.info;
-    const {
-      data: { crypto },
-    } = await findUser(id);
-    crypto.forEach(async (el: any) => {
-      await ctx.reply(formatInfoCoin(el));
-    });
+    const { data } = await findUser(id);
+    if (data?.crypto && Array.isArray(data.crypto)) {
+      data.crypto.forEach(async (el) => {
+        await ctx.reply(formatInfoCoin(el));
+      });
+    }
   } else {
     return ctx.reply("You don't auth, bye!", {
       reply_markup: CustomKeyboard.keyboard,
