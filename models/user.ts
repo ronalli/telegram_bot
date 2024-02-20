@@ -1,6 +1,21 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
-const UserSchema = new mongoose.Schema({
+type Coin = {
+  date: Date;
+  name: string;
+  price: string;
+  number: string;
+  _id?: ObjectId;
+};
+
+export interface PersonalAccount {
+  name: string;
+  id: string;
+  crypto: [Coin];
+}
+
+const UserSchema = new Schema<PersonalAccount>({
   name: String,
   id: String,
   crypto: [
@@ -9,10 +24,11 @@ const UserSchema = new mongoose.Schema({
       name: String,
       price: String,
       number: String,
+      _id: ObjectId,
     },
   ],
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = model('User', UserSchema);
 
 export default User;

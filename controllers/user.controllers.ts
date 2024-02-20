@@ -1,6 +1,7 @@
+import { PersonalCoin } from '../models/CryptoCoin.js';
 import { User } from '../models/index.js';
 
-export const findUser: any = async (id: any) => {
+export const findUser: any = async (id: string) => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
@@ -13,7 +14,7 @@ export const findUser: any = async (id: any) => {
   }
 };
 
-export const registerUser = async (name: any, id: any) => {
+export const registerUser = async (name: string, id: string) => {
   try {
     const response = await findUser(id);
     if (!response.success) {
@@ -33,7 +34,7 @@ export const registerUser = async (name: any, id: any) => {
   }
 };
 
-export const updateUserInfo = async (id: any, coin: any) => {
+export const updateUserInfo = async (id: string, coin: PersonalCoin) => {
   try {
     const response = await User.findOneAndUpdate(
       { id },

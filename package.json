@@ -15,6 +15,7 @@
     "@grammyjs/chat-members": "^1.0.12",
     "@grammyjs/conversations": "^1.2.0",
     "@grammyjs/storage-free": "^2.4.1",
+    "@types/mongodb": "^4.0.7",
     "@types/node": "^20.11.16",
     "axios": "^1.6.5",
     "dotenv": "^16.3.1",

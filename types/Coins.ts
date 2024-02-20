@@ -1,4 +1,4 @@
-import { Coin } from './CoinServer';
+import { Coin } from './CoinServerResponse.js';
 
 type Coins = Coin[];
 type Status = {

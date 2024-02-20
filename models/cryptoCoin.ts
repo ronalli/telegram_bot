@@ -1,11 +1,22 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
-const CryptoSchema = new mongoose.Schema({
+export interface PersonalCoin {
+  date: Date;
+  name: string;
+  price: string;
+  number: string;
+  _id?: ObjectId;
+}
+
+const CryptoSchema = new Schema<PersonalCoin>({
   name: String,
-  symbol: String,
+  number: String,
   price: String,
+  date: Date,
+  _id: ObjectId,
 });
 
-const CryptoCoin = mongoose.model('CryptoCoin', CryptoSchema);
+const CryptoCoin = model('CryptoCoin', CryptoSchema);
 
 export default CryptoCoin;

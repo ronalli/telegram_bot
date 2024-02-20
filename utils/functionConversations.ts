@@ -1,5 +1,4 @@
 import { MyContext, MyConversation } from './../types/Context.js';
-
 import {
   findOneCoin,
   updateUserInfo,
@@ -18,7 +17,7 @@ export async function addCoin(conversation: MyConversation, ctx: MyContext) {
   const price = await conversation.wait();
   await ctx.reply('Number coins');
   const number = await conversation.wait();
-  const coin = {
+  const coin: any = {
     name: name?.message?.text?.toUpperCase(),
     price: price?.message?.text,
     number: number?.message?.text,
