@@ -1,6 +1,6 @@
-import { Coin } from './CoinServerResponse.js';
+import { CoinServer } from './CoinServerResponse.js';
 
-type Coins = Coin[];
+type Coins = CoinServer[];
 type Status = {
   timestamp: string;
   error_code: number;

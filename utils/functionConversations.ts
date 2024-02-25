@@ -49,7 +49,7 @@ export async function searchCoin(conversation: MyConversation, ctx: MyContext) {
   });
   if (response) {
     response.success &&
-      response?.data?.forEach(async (el: any) => {
+      response?.data?.forEach(async (el) => {
         await ctx.reply(formatInfoCoin(el));
       });
     await ctx.reply(`${response.message}`, {

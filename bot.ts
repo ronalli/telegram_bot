@@ -34,7 +34,7 @@ bot.use(createConversation(searchCoin));
 
 API.connect()
   .then(() => console.log('connected'))
-  .catch((err: any) => console.log(err));
+  .catch((err) => console.log(err));
 
 bot.command('start', async (ctx) => {
   await ctx.reply('Welcome friend! Touch please', {
@@ -65,10 +65,12 @@ bot.hears('📋 List', async (ctx) => {
   if (ctx.session.auth) {
     const response = await formatMainData(db.data);
     const { id } = ctx.msg.chat;
-    const { data } = await findUser(String(id));
-    const stack = await dataFusion(response, data);
-    const respo = await printInfo(stack, response, ctx);
-    return ctx.reply(`${respo}`);
+    const user = await findUser(String(id));
+    if (user.success && user.data) {
+      const stack = await dataFusion(response, user.data);
+      const respo = await printInfo(stack, response, ctx);
+      return ctx.reply(`${respo}`);
+    }
   } else {
     return ctx.reply("You don't auth, bye!", {
       reply_markup: CustomKeyboard.keyboard,

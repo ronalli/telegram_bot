@@ -1,4 +1,4 @@
-export interface Coin {
+export interface CoinServer {
   id: number;
   name: string;
   symbol: string;
@@ -6,7 +6,7 @@ export interface Coin {
   num_market_pairs: number;
   date_added: string;
   tags: string[];
-  max_supply: number;
+  max_supply: number | null;
   circulating_supply: number;
   total_supply: number;
   infinite_supply: boolean;
@@ -17,6 +17,10 @@ export interface Coin {
   tvl_ratio: any;
   last_updated: string;
   quote: Quote;
+}
+
+export interface FormatCoin {
+  [key: string]: CoinServer;
 }
 
 type Quote = {

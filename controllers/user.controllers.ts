@@ -6,7 +6,11 @@ export const findUser = async (id: string) => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
-      return { message: 'Account found', success: true, data: response };
+      return {
+        message: 'Account found',
+        success: true,
+        data: response as PersonalAccount,
+      };
     } else {
       return { message: 'Account not found', success: false };
     }

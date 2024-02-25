@@ -1,23 +1,44 @@
-// import { Response } from '../types/Coins';
+import { Coin, PersonalAccount } from '../models/User';
+import { CoinServer, FormatCoin } from '../types/CoinServerResponse';
+import { MyContext } from '../types/Context';
 
-export const formatMainData = async (data: any) => {
-  const obj: any = {};
-  data.forEach((el: any) => {
+export const formatMainData = async (data: CoinServer[]) => {
+  const obj: FormatCoin = {};
+  data.forEach((el) => {
     obj[el.symbol] = el;
   });
   return obj;
 };
 
-export const dataFusion = async (response: any, arrayCoin: any) => {
-  const stack: any = {};
-  const { crypto: data } = arrayCoin;
-  data.forEach((el: any) => {
+interface ObjectData {
+  price: number;
+  number: number;
+}
+
+interface IO {
+  [key: string]: ObjectData;
+}
+
+interface StringData {
+  [key: string]: string;
+}
+
+type IDataFusion = IO | StringData;
+
+export const dataFusion = async (
+  response: FormatCoin,
+  user: PersonalAccount
+) => {
+  const stack: IDataFusion = {};
+  const { crypto: data } = user;
+  data.forEach((el) => {
     if (response[el.name]) {
-      if (stack.hasOwnProperty(el.name)) {
+      if (stack.hasOwnProperty(el.name) && typeof stack[el.name] === 'object') {
         stack[el.name] = {
           price:
-            Number(stack[el.name].price) + Number(el.price) * Number(el.number),
-          number: stack[el.name].number + Number(el.number),
+            Number((stack[el.name] as ObjectData).price) +
+            Number(el.price) * Number(el.number),
+          number: (stack[el.name] as ObjectData).number + Number(el.number),
         };
       } else {
         stack[el.name] = {
@@ -39,7 +60,11 @@ type Elem = {
 
 type Stack = Elem[];
 
-export const printInfo = async (stack: Stack, response: any, ctx: any) => {
+export const printInfo = async (
+  stack: IDataFusion,
+  response: any,
+  ctx: MyContext
+) => {
   for (let [key, value] of Object.entries(stack)) {
     const price = response[key]?.quote['USD'].price;
     if (price) {
@@ -60,10 +85,10 @@ export const printInfo = async (stack: Stack, response: any, ctx: any) => {
   return 'Data received successfully';
 };
 
-export const formatInfoCoin = (element: any) => {
+export const formatInfoCoin = (element: Coin) => {
   return `${element.name}, date: ${element.date.toLocaleDateString()}, price: ${
     element.price
   }$, number: ${element.number}, sum: ${
-    Math.floor(element.price * element.number * 1000) / 1000
+    Math.floor(+element.price * +element.number * 1000) / 1000
   }$`;
 };
