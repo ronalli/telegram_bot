@@ -1,8 +1,9 @@
+import { Response } from './../types/Coins';
 import { PersonalCoin } from '../models/CryptoCoin.js';
 import { PersonalAccount } from '../models/User.js';
 import { User } from '../models/index.js';
 
-export const findUser = async (id: string) => {
+export const findUser = async (id: string): Promise<Response> => {
   try {
     const response = await User.findOne({ id: id });
     if (response) {
@@ -15,11 +16,14 @@ export const findUser = async (id: string) => {
       return { message: 'Account not found', success: false };
     }
   } catch (error) {
-    return { error, success: false };
+    return { message: error, success: false };
   }
 };
 
-export const registerUser = async (name: string, id: string) => {
+export const registerUser = async (
+  name: string,
+  id: string
+): Promise<Response> => {
   try {
     const response = await findUser(id);
     if (!response.success) {
@@ -35,11 +39,14 @@ export const registerUser = async (name: string, id: string) => {
       return { message: 'Account already exists!', success: true };
     }
   } catch (error) {
-    return { error, success: false };
+    return { message: error, success: false };
   }
 };
 
-export const updateUserInfo = async (id: string, coin: PersonalCoin) => {
+export const updateUserInfo = async (
+  id: string,
+  coin: PersonalCoin
+): Promise<Response> => {
   try {
     const response = await User.findOneAndUpdate(
       { id },
@@ -47,7 +54,7 @@ export const updateUserInfo = async (id: string, coin: PersonalCoin) => {
     );
     return { message: 'Success add', success: true };
   } catch (error) {
-    return { error, success: false };
+    return { message: error, success: false };
   }
 };
 
@@ -57,10 +64,13 @@ export const findOneCoin = async (id: string, coin: string) => {
     if (response.success && response.data?.crypto) {
       let coins = response.data.crypto.filter((el) => el.name === coin);
       return coins.length === 0
-        ? { success: false, message: 'There is no information about the coin' }
-        : { data: coins, success: true, message: 'Successfully received' };
+        ? {
+            success: false,
+            message: 'There is no information about the coin',
+          }
+        : { success: true, data: coins, message: 'Successfully received' };
     }
   } catch (error) {
-    return { error, success: false };
+    return { success: false, message: error };
   }
 };

@@ -1,5 +1,6 @@
 import { Coin, PersonalAccount } from '../models/User';
 import { CoinServer, FormatCoin } from '../types/CoinServerResponse';
+import { DataFusion, IObjectData } from '../types/Coins';
 import { MyContext } from '../types/Context';
 
 export const formatMainData = async (data: CoinServer[]) => {
@@ -10,35 +11,20 @@ export const formatMainData = async (data: CoinServer[]) => {
   return obj;
 };
 
-interface ObjectData {
-  price: number;
-  number: number;
-}
-
-interface IO {
-  [key: string]: ObjectData;
-}
-
-interface StringData {
-  [key: string]: string;
-}
-
-type IDataFusion = IO | StringData;
-
 export const dataFusion = async (
   response: FormatCoin,
   user: PersonalAccount
 ) => {
-  const stack: IDataFusion = {};
+  const stack: DataFusion = {};
   const { crypto: data } = user;
   data.forEach((el) => {
     if (response[el.name]) {
       if (stack.hasOwnProperty(el.name) && typeof stack[el.name] === 'object') {
         stack[el.name] = {
           price:
-            Number((stack[el.name] as ObjectData).price) +
+            Number((stack[el.name] as IObjectData).price) +
             Number(el.price) * Number(el.number),
-          number: (stack[el.name] as ObjectData).number + Number(el.number),
+          number: (stack[el.name] as IObjectData).number + Number(el.number),
         };
       } else {
         stack[el.name] = {
@@ -53,16 +39,9 @@ export const dataFusion = async (
   return stack;
 };
 
-type Elem = {
-  price: number;
-  number: number;
-};
-
-type Stack = Elem[];
-
 export const printInfo = async (
-  stack: IDataFusion,
-  response: any,
+  stack: DataFusion,
+  response: FormatCoin,
   ctx: MyContext
 ) => {
   for (let [key, value] of Object.entries(stack)) {
