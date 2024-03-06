@@ -1,19 +1,26 @@
 import axios, { AxiosError } from 'axios';
 import mongoose from 'mongoose';
+import { IResponse } from '../types/Coins';
 
-const getCoin = async () => {
+type ResponseCoins = {
+  success: boolean;
+  message?: Error;
+  data?: IResponse;
+};
+
+export async function getCoins(): Promise<ResponseCoins> {
   try {
-    const response = await axios.get(process.env.API_URL, {
+    const response = await axios.get<IResponse>(process.env.API_URL, {
       headers: {
         'X-CMC_PRO_API_KEY': process.env.API_KEY,
       },
     });
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error) {
-    return { message: error };
+    return { success: false, message: error };
   }
-};
+}
 
 const connect = () => mongoose.connect(process.env.MONGOOSE_URL);
 
-export default { getCoin, connect };
+export default { getCoins, connect };

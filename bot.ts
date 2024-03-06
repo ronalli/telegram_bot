@@ -1,7 +1,7 @@
 import { Bot, session } from 'grammy';
 import dotenv from 'dotenv';
-import API from './utils/api.js';
-// import { myCache } from './utils/cache.js';
+import API, { getCoins } from './utils/api.js';
+import { myCache } from './utils/cache.js';
 import CustomKeyboard from './utils/keyboard.js';
 import { conversations, createConversation } from '@grammyjs/conversations';
 import { addCoin, searchCoin } from './utils/functionConversations.js';
@@ -61,40 +61,41 @@ bot.command('save', async (ctx) => {
 
 bot.callbackQuery('ff', (ctx) => ctx.reply('good'));
 
-bot.hears('📋 List', async (ctx) => {
-  if (ctx.session.auth) {
-    const response = await formatMainData(db.data);
-    const { id } = ctx.msg.chat;
-    const user = await findUser(String(id));
-    if (user.success && user.data) {
-      const stack = await dataFusion(response, user.data);
-      const respo = await printInfo(stack, response, ctx);
-      return ctx.reply(`${respo}`);
-    }
-  } else {
-    return ctx.reply("You don't auth, bye!", {
-      reply_markup: CustomKeyboard.keyboard,
-    });
-  }
-});
-
-// bot.hears('List', async (ctx) => {
-//   const response = await getCoin();
-//   if (response.message)
-//     return ctx.reply(`An error occurred, let's try again later`);
-//   if (myCache.get('coin')) {
-//     return ctx.reply('The data is up to date!');
-//   }
-//   if (myCache.set('coin', response, 3600)) {
+// bot.hears('📋 List', async (ctx) => {
+//   if (ctx.session.auth) {
+//     const response = await formatMainData(db.data);
 //     const { id } = ctx.msg.chat;
-//     const { data } = await findUser(id);
-//     console.log(data.crypto);
-//     data.crypto.forEach((el) => {
-//       console.log(myCache.get('coin'));
+//     const user = await findUser(String(id));
+//     if (user.success && user.data) {
+//       const stack = await dataFusion(response, user.data);
+//       const respo = await printInfo(stack, response, ctx);
+//       return ctx.reply(`${respo}`);
+//     }
+//   } else {
+//     return ctx.reply("You don't auth, bye!", {
+//       reply_markup: CustomKeyboard.keyboard,
 //     });
-//     return ctx.reply('Data received successfully');
 //   }
 // });
+
+bot.hears('📋 List', async (ctx) => {
+  if (myCache.get('coin')) {
+    return ctx.reply('The data is up to date!');
+  } else {
+    const response = await getCoins();
+    if (response.message)
+      return ctx.reply(`An error occurred, let's try again later`);
+    if (myCache.set('coin', response, 3600)) {
+      const { id } = ctx.msg.chat;
+      const { data } = await findUser(String(id));
+      // console.log(data.crypto);
+      // data?.crypto.forEach((el) => {
+      //   console.log(myCache.get('coin'));
+      // });
+      return ctx.reply('Data received successfully');
+    }
+  }
+});
 
 bot.hears('🔐 Login', async (ctx) => {
   const id = ctx.msg.chat.id.toString();
